@@ -2,9 +2,71 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
+import { useAuth } from '../contexts/AuthContext';
+import toast from 'react-hot-toast';
 
 const Cart: React.FC = () => {
+
+
+
+
   const { items, updateQuantity, removeFromCart, getTotalPrice, clearCart } = useCart();
+
+
+
+
+const { user } = useAuth();
+
+const handlePlaceOrder = async () => {
+  if (!user) {
+    toast.error('Please login to place order');
+    return;
+  }
+
+  // 1. Check stock for each product
+  try {
+    for (const item of items) {
+      const res = await fetch(`http://localhost:5000/api/products/${item.productId}`);
+      const product = await res.json();
+      if (item.quantity > product.stock) {
+        toast.error(`Not enough stock for "${item.name}". Only ${product.stock} left.`);
+        return;
+      }
+    }
+
+    // 2. Place order
+    const res = await fetch('http://localhost:5000/api/orders', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+      body: JSON.stringify({
+        items: items.map(item => ({
+          product: item.productId,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          image: item.image,
+        })),
+        total: getTotalPrice(),
+      }),
+    });
+
+    if (res.ok) {
+      // 3. Lower product stock (handled in backend, see below)
+      clearCart();
+      // 4. Redirect to thank you page
+      window.location.href = '/thankyou';
+    } else {
+      toast.error('Failed to place order');
+    }
+  } catch {
+    toast.error('Failed to place order');
+  }
+};
+
+
 
   if (items.length === 0) {
     return (
@@ -104,7 +166,7 @@ const Cart: React.FC = () => {
                 >
                   Continue Shopping
                 </Link>
-                <button className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                <button className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"   onClick={handlePlaceOrder}>
                   Proceed to Checkout
                 </button>
               </div>

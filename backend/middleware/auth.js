@@ -5,6 +5,7 @@ export const protect = async (req, res, next) => {
   try {
     let token;
 
+    // Check for Bearer token in Authorization header
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
       token = req.headers.authorization.split(' ')[1];
     }
@@ -13,9 +14,9 @@ export const protect = async (req, res, next) => {
       return res.status(401).json({ message: 'Not authorized, no token' });
     }
 
+    // Verify token and attach user to request
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.userId).select('-password');
-
     if (!user) {
       return res.status(401).json({ message: 'Not authorized, user not found' });
     }

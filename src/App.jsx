@@ -15,6 +15,9 @@ import Profile from './pages/Profile';
 import Admin from './pages/Admin';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import AdminRoute from './components/auth/AdminRoute';
+import Wishlist from './pages/Wishlist';
+import MyOrders from './pages/MyOrders';
+import ThankYou from './pages/ThankYou';
 
 function App() {
   return (
@@ -29,7 +32,10 @@ function App() {
                 <Route path="/products" element={<Products />} />
                 <Route path="/product/:id" element={<ProductDetail />} />
                 <Route path="/cart" element={<Cart />} />
+                <Route path="/wishlist" element={<Wishlist />} />
                 <Route path="/login" element={<Login />} />
+                <Route path="/thankyou" element={<ThankYou />} />
+                <Route path="/myorders" element={<MyOrders />} />
                 <Route path="/register" element={<Register />} />
                 <Route
                   path="/profile"
