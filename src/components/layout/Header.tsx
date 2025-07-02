@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, User, Menu, X, Search, Heart } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCart } from '../../contexts/CartContext';
+import { ShoppingBag } from 'lucide-react';
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -47,9 +48,9 @@ const Header: React.FC = () => {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
-            <button className="p-2 text-gray-700 hover:text-blue-600 transition-colors">
-              <Heart className="w-6 h-6" />
-            </button>
+            <Link to="/wishlist" className="p-2 text-gray-700 hover:text-pink-600 transition-colors">
+  <Heart className="w-6 h-6" />
+</Link>
             <Link to="/cart" className="relative p-2 text-gray-700 hover:text-blue-600 transition-colors">
               <ShoppingCart className="w-6 h-6" />
               {getTotalItems() > 0 && (
@@ -58,7 +59,14 @@ const Header: React.FC = () => {
                 </span>
               )}
             </Link>
-            
+
+            <Link
+  to="/myorders"
+  className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 transition-colors"
+>
+  <ShoppingBag className="w-5 h-5" />
+  <span>My Orders</span>
+</Link>
             {user ? (
               <div className="relative group">
                 <button className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 transition-colors">

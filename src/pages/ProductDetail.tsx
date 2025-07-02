@@ -1,9 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { Star, Heart, ShoppingCart, Truck, Shield, RotateCcw } from 'lucide-react';
-import axios from 'axios';
-import { useCart } from '../contexts/CartContext';
-import toast from 'react-hot-toast';
+import React, { useState, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
+import {
+  Star,
+  Heart,
+  ShoppingCart,
+  Truck,
+  Shield,
+  RotateCcw,
+} from "lucide-react";
+import axios from "axios";
+import { useCart } from "../contexts/CartContext";
+import toast from "react-hot-toast";
+import { useAuth } from '../contexts/AuthContext';
+
 
 interface Product {
   _id: string;
@@ -17,12 +26,28 @@ interface Product {
   stock: number;
 }
 
+
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const { addToCart } = useCart();
+
+const { user } = useAuth();
+const [isWishlisted, setIsWishlisted] = useState(false);
+
+useEffect(() => {
+  if (user && product) {
+    // Fetch user's wishlist and check if this product is in it
+    axios.get('http://localhost:5000/api/wishlist', {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    }).then(res => {
+      setIsWishlisted(res.data.wishlist.some((p: any) => p._id === product._id));
+    });
+  }
+}, [user, product]);
+
 
   useEffect(() => {
     if (id) {
@@ -32,11 +57,13 @@ const ProductDetail: React.FC = () => {
 
   const fetchProduct = async (productId: string) => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/products/${productId}`);
+      const response = await axios.get(
+        `http://localhost:5000/api/products/${productId}`
+      );
       setProduct(response.data);
     } catch (error) {
-      console.error('Error fetching product:', error);
-      toast.error('Product not found');
+      console.error("Error fetching product:", error);
+      toast.error("Product not found");
     } finally {
       setLoading(false);
     }
@@ -54,6 +81,37 @@ const ProductDetail: React.FC = () => {
       }
     }
   };
+
+
+const handleWishlist = async () => {
+  if (!user) {
+    toast.error('Please login to use wishlist');
+    return;
+  }
+  try {
+    if (isWishlisted) {
+      await axios.post(
+        `http://localhost:5000/api/wishlist/remove/${product?._id}`,
+        {},
+        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+      );
+      setIsWishlisted(false);
+      toast.success('Removed from wishlist');
+    } else {
+      await axios.post(
+        `http://localhost:5000/api/wishlist/add/${product?._id}`,
+        {},
+        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+      );
+      setIsWishlisted(true);
+      toast.success('Added to wishlist');
+    }
+  } catch (err) {
+    toast.error('Wishlist action failed');
+  }
+};
+
+
 
   if (loading) {
     return (
@@ -77,7 +135,9 @@ const ProductDetail: React.FC = () => {
     return (
       <div className="min-h-screen bg-gray-50 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Product not found</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            Product not found
+          </h2>
           <Link to="/products" className="text-blue-600 hover:text-blue-700">
             Back to Products
           </Link>
@@ -101,7 +161,10 @@ const ProductDetail: React.FC = () => {
               <span className="text-gray-500">/</span>
             </li>
             <li>
-              <Link to="/products" className="text-gray-500 hover:text-gray-700">
+              <Link
+                to="/products"
+                className="text-gray-500 hover:text-gray-700"
+              >
                 Products
               </Link>
             </li>
@@ -139,8 +202,8 @@ const ProductDetail: React.FC = () => {
                       key={i}
                       className={`w-4 h-4 ${
                         i < Math.floor(product.rating)
-                          ? 'text-yellow-400 fill-current'
-                          : 'text-gray-300'
+                          ? "text-yellow-400 fill-current"
+                          : "text-gray-300"
                       }`}
                     />
                   ))}
@@ -149,28 +212,39 @@ const ProductDetail: React.FC = () => {
                   </span>
                 </div>
               </div>
-              
-              <h1 className="text-3xl font-bold text-gray-900 mb-4">{product.name}</h1>
-              
+
+              <h1 className="text-3xl font-bold text-gray-900 mb-4">
+                {product.name}
+              </h1>
+
               <div className="flex items-center space-x-4 mb-6">
                 <span className="text-3xl font-bold text-blue-600">
                   ${product.price.toFixed(2)}
                 </span>
                 <span className="text-green-600 font-medium">
-                  {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
+                  {product.stock > 0
+                    ? `${product.stock} in stock`
+                    : "Out of stock"}
                 </span>
               </div>
             </div>
 
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Description</h3>
-              <p className="text-gray-600 leading-relaxed">{product.description}</p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                Description
+              </h3>
+              <p className="text-gray-600 leading-relaxed">
+                {product.description}
+              </p>
             </div>
 
             {/* Quantity and Add to Cart */}
             <div className="space-y-4">
               <div className="flex items-center space-x-4">
-                <label htmlFor="quantity" className="text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="quantity"
+                  className="text-sm font-medium text-gray-700"
+                >
                   Quantity:
                 </label>
                 <select
@@ -196,8 +270,23 @@ const ProductDetail: React.FC = () => {
                   <ShoppingCart className="w-5 h-5 mr-2" />
                   Add to Cart
                 </button>
-                <button className="p-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                  <Heart className="w-5 h-5 text-gray-600" />
+                <button
+                  type="button"
+                  onClick={handleWishlist}
+                  className={`p-3 border border-gray-300 rounded-lg transition-colors ${
+                    isWishlisted ? "bg-pink-100" : "hover:bg-gray-50"
+                  }`}
+                  aria-label={
+                    isWishlisted ? "Remove from wishlist" : "Add to wishlist"
+                  }
+                >
+                  <Heart
+                    className={`w-5 h-5 ${
+                      isWishlisted
+                        ? "text-pink-600 fill-pink-600"
+                        : "text-gray-600"
+                    }`}
+                  />
                 </button>
               </div>
             </div>

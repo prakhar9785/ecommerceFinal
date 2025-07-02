@@ -4,6 +4,9 @@ import { Package, Users, ShoppingCart, Plus, Edit, Trash2, BarChart3 } from 'luc
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
+
+
+
 interface Product {
   _id: string;
   name: string;
@@ -13,6 +16,8 @@ interface Product {
   category: string;
   stock: number;
 }
+
+
 
 const Admin: React.FC = () => {
   const location = useLocation();
@@ -28,6 +33,8 @@ const Admin: React.FC = () => {
     category: '',
     stock: '',
   });
+
+
 
   useEffect(() => {
     fetchProducts();
@@ -119,7 +126,9 @@ const Admin: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500">Total Users</p>
-              <p className="text-2xl font-bold text-gray-900">156</p>
+              <p className="text-2xl font-bold text-gray-900">
+  1
+</p>
             </div>
             <Users className="w-8 h-8 text-green-600" />
           </div>
@@ -129,7 +138,7 @@ const Admin: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500">Total Orders</p>
-              <p className="text-2xl font-bold text-gray-900">89</p>
+              <p className="text-2xl font-bold text-gray-900">11</p>
             </div>
             <ShoppingCart className="w-8 h-8 text-purple-600" />
           </div>

@@ -80,6 +80,10 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+
+
+
+
 // Create product (Admin only)
 router.post('/', [protect, admin], [
   body('name').trim().isLength({ min: 1 }).withMessage('Product name is required'),

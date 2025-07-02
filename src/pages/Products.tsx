@@ -12,7 +12,10 @@ interface Product {
   category: string;
   rating: number;
   reviews: number;
+  stock: number;      // <-- Add this
+  isActive?: boolean; // <-- Add this if you use it in backend
 }
+
 
 const Products: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
